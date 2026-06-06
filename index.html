@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Draw Event Studio</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body class="focus-mode-active">
+
+    <a href="https://tzerone-giveaway-02.netlify.app/" class="nav-switcher-btn">
+        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+        Admin Panel
+    </a>
+
+    <div id="global-page-loader">
+        <div class="loader-spinner"></div>
+    </div>
+
+    <div id="custom-alert-overlay" class="modal-overlay hidden">
+        <div id="custom-alert-box" class="modal-box-card custom-popup-card">
+            <div id="custom-alert-icon" class="popup-icon"></div>
+            <h3 id="custom-alert-title">NOTICE</h3>
+            <p id="custom-alert-message" class="modal-body-text"></p>
+            <div class="dual-btn-row top-space-btn" id="custom-alert-buttons"></div>
+        </div>
+    </div>
+
+    <div id="admin-auth-overlay" class="modal-overlay">
+        <div class="modal-box-card credential-box">
+            <h3>🔒 STUDIO AUTHORIZATION</h3>
+            <p style="font-size: 0.8rem; color: #A5A6B9; margin-bottom: 15px;">Session will auto-terminate upon closing this window.</p>
+            <div class="form-group">
+                <input type="email" id="auth-email" placeholder="STUDIO EMAIL" autocomplete="off">
+            </div>
+            <div class="form-group" style="position: relative;">
+                <input type="password" id="auth-password" placeholder="PASSWORD">
+                <button type="button" class="eye-toggle-btn" onclick="togglePasswordVisibility()">
+                    <svg id="eye-icon-open" class="hidden" viewBox="0 0 24 24" width="20" height="20" fill="#A5A6B9"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    <svg id="eye-icon-closed" viewBox="0 0 24 24" width="20" height="20" fill="#A5A6B9"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>
+                </button>
+            </div>
+            <div class="auth-btn-wrapper">
+                <button class="btn btn-action-green btn-sm" onclick="verifyAdminGatewayCredentials()">ENTER STUDIO</button>
+            </div>
+        </div>
+    </div>
+
+    <img id="home-prize-image" src="" class="hidden" alt="hidden data holder">
+
+    <div id="admin-panel-view" class="hidden">
+        <div class="admin-tab-content">
+            <img src="https://raw.githubusercontent.com/TARHIT-T0SVX/Tzerone-giveway/refs/heads/main/TZERONE_OFFICIAL_LOGO.png" alt="T ZERONE" class="focus-mode-logo img-loading" onload="this.classList.remove('img-loading')">
+
+            <div class="admin-card-surface text-center premium-lottery-panel">
+                <div class="lottery-halo"></div>
+                
+                <h2 class="lottery-gradient-title">LUCKY DRAW</h2>
+                <p class="lottery-subtitle">Spin to find our next winner</p>
+                
+                <div class="slot-machine-display modern-slot">
+                    <div id="slot-id-rolling-box" class="slot-text-window">READY TO SPIN</div>
+                </div>
+
+                <div class="dual-btn-row adjustment-row">
+                    <button id="lottery-stop-btn" class="btn btn-danger-action logic-btn premium-btn stop-btn" disabled onclick="stopLotteryAlgorithm()">STOP</button>
+                    <button id="lottery-play-btn" class="btn btn-action-green logic-btn premium-btn play-btn" onclick="startLotteryAlgorithm()">PLAY</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="winner-modal-overlay" class="full-page-modal hidden">
+        <div class="full-celebration-container winner-card-premium">
+            <div class="winner-card-header">
+                <h2 class="sparkle-heading glow-text">CONGRATULATIONS!</h2>
+                <p class="winner-sub-headline">NEW CHAMPION SELECTED</p>
+            </div>
+            <div class="winner-prize-visual-frame modern-prize-frame">
+                <img id="winner-card-prize-image" src="" alt="Winning Prize Visual" class="img-loading" onload="this.classList.remove('img-loading')">
+                <div class="modern-visual-tag">PRIZE GRANTED</div>
+            </div>
+            <div class="winner-display-meta modern-meta-box">
+                <p class="meta-row">
+                    <span class="meta-label">NAME:</span>
+                    <span id="win-card-name" class="meta-value text-highlight"></span>
+                </p>
+                <p class="meta-row id-row">
+                    <span class="meta-label">GAME ID:</span>
+                    <span class="meta-value id-box">
+                        <span id="win-card-id"></span>
+                        <button class="copy-id-btn" onclick="copyWinnerId()" title="Copy Game ID">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                        </button>
+                    </span>
+                </p>
+                <div class="btn-center-wrapper show-more-wrapper">
+                    <button id="show-more-btn" class="btn btn-secondary-soft btn-sm" onclick="toggleWinnerDetails()">Show More</button>
+                </div>
+                <div id="winner-admin-sensitive-data" class="hidden-admin-data hidden">
+                    <p class="meta-row">
+                        <span class="meta-label">AGE:</span>
+                        <span id="win-card-real-age" class="meta-value"></span>
+                    </p>
+                    <p class="meta-row id-row">
+                        <span class="meta-label">PHONE:</span>
+                        <span class="meta-value id-box">
+                            <span id="win-card-real-phone"></span>
+                            <button class="copy-id-btn" onclick="copyWinnerPhone()" title="Copy Phone Number">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                            </button>
+                        </span>
+                    </p>
+                </div>
+            </div>
+            <div class="winner-card-footer">
+                <button class="btn btn-action-green premium-close-btn" onclick="closeWinnerCelebrationModal()">DONE</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, updateDoc, collection, addDoc, query, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAoketoRHRp4ko6zDr5nDN62EuvBluF0SE",
+            authDomain: "tzerone-giveaway.firebaseapp.com",
+            projectId: "tzerone-giveaway",
+            storageBucket: "tzerone-giveaway.firebasestorage.app",
+            messagingSenderId: "79301530556",
+            appId: "1:79301530556:web:4290ce069b76b9cd4ad1b9",
+            measurementId: "G-E738EB97XK"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        window.FirebaseBridge = { db, auth, doc, updateDoc, collection, addDoc, query, onSnapshot, signInWithEmailAndPassword, setPersistence, browserSessionPersistence };
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
